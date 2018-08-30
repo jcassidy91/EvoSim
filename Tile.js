@@ -92,82 +92,31 @@ function setEndTile() {
 }
 
 function findPath() {
-  var start = grid.find(x => x instanceof StartTile);
-  var end = grid.find(x => x instanceof EndTile);
+  let open = [];
+  let closed = [];
 
-  var open = [];
-  var closed = [];
+  let start = grid.find(tile => tile instanceof StartTile);
+  let end = grid.find(tile => tile instanceof EndTile);
   open.push(start);
-  var current = start;
 
-  var i = 0;
-  while (current != end || i < 1000) {
-    calcFCost(open, start, end);
-    current = findLowestFCost(open);
-    open = open.filter(x => x != current);
+  let current = start;
 
+  let i = 0;
+  while(current != end && i < 1000) {
+    getFcost(open, start, end);
+    open = open.filter(tile => tile != current);
     closed.push(current);
 
-    if (!current) {return;}
-    if (current == end) { return getPath(start, end); }
-
-    let neighbors = getNeighbors(current.id);
-    for(let n of neighbors) {
-      if (closed.find(x => x === n)) {continue;}
-      if (!open.find(x => x === n)) {
-        n.parent = current.id;
-        open.push(n);
-      }
-    }
-
+    ////////
+    ////////
     i++;
   }
-  console.log("no path found");
-  return false;
 }
 
-function calcFCost(open, start, end) {
-  for (let o of open) {
-    let G = dist(o.x, o.y, start.x, start.y);
-    let H = dist(o.x, o.y, end.x, end.y);
-    o.F = G + H;
+function getFcost(open, start, end) {
+  for (let tile of open) {
+    let G = dist(tile.x, tile.y, start.x, start.y);
+    let H = dist(tile.x, tile.y, end.x, end.y);
+    tile.F = G + H;
   }
-}
-
-function findLowestFCost(open) {
-  let nodes = open.sort((a,b) => {return (a.F > b.F) ? 1 : -1})
-  return nodes[0];
-}
-
-function getNeighbors(id) {
-  let neighbors = [];
-
-  let row = floor(id / numx);
-  let col = id - numx * row;
-
-  for (let i = col - 1; i <= col + 1; i++) {
-    for (let j = row - 1; j <= row + 1; j++) {
-      if (j < 0 || j > numy - 1) {continue;}
-      if (i < 0 || i > numx - 1) {continue;}
-
-      let id = Tile.getGridId(i, j);
-      if (grid[id].traversible)
-        neighbors.push(grid[id]);
-    }
-  }
-  return neighbors;
-}
-
-function getPath(from, to) {
-  let path = [];
-
-  let par = to
-  let i = 0;
-  while (par != from && i < 1000) {
-    path.push(par);
-    if (par && par.parent)
-    par = Tile.getTile(par.parent);
-    i++;
-  }
-  return path;
 }

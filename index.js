@@ -17,8 +17,7 @@ function draw() {
     setEndTile(mouseTileId);
   }
   if (Input.getKey(' ')) {
-    path = findPath();
-    console.log(path)
+    findPath();
   }
 
   for (let step of path) {
